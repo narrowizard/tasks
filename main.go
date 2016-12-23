@@ -34,6 +34,6 @@ func Run() {
 				wg.Done()
 			}()
 		}
+		wg.Wait()
 	}
-	wg.Wait()
 }
