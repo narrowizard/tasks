@@ -22,18 +22,24 @@ func RegisterTasks(name string, task TaskModel) {
 func Run() {
 	var wg sync.WaitGroup //定义一个同步等待的组
 	for name, task := range taskList {
-		var i = 0
-		for i = 0; i < task.GoRoutinesNum; i++ {
-			wg.Add(1)
-			var temp = i
-			go func() {
-				var succ = task.Executor(temp)
-				if !succ {
-					fmt.Println("task " + name + " " + strconv.Itoa(temp) + " failed!")
-				}
-				wg.Done()
-			}()
+		if task.Concurrence == 0 {
+			task.Concurrence = task.GoRoutinesNum
 		}
-		wg.Wait()
+		var groups = task.GoRoutinesNum/task.Concurrence + 1
+		var i, j = 0, 0
+		for j = 0; j < groups; j++ {
+			for i = j * task.Concurrence; i < (j+1)*task.Concurrence; i++ {
+				wg.Add(1)
+				var temp = i
+				go func() {
+					var succ = task.Executor(temp)
+					if !succ {
+						fmt.Println("task " + name + " " + strconv.Itoa(temp) + " failed!")
+					}
+					wg.Done()
+				}()
+			}
+			wg.Wait()
+		}
 	}
 }
