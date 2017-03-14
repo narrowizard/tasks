@@ -29,6 +29,9 @@ func Run() {
 		var i, j = 0, 0
 		for j = 0; j < groups; j++ {
 			for i = j * task.Concurrence; i < (j+1)*task.Concurrence; i++ {
+				if i >= task.GoRoutinesNum {
+					break
+				}
 				wg.Add(1)
 				var temp = i
 				go func() {
